@@ -63,3 +63,23 @@ def find_max_subarray(array: arr.array,
     if right_sum >= left_sum and right_sum >= cross_sum:
         return right_low, right_high, right_sum
     return cross_low, cross_high, cross_sum
+
+
+def find_max_subarray_linear_time(array: arr.array) -> Tuple[int, int, Union[int, float]]:
+    max_sum = -math.inf
+    low_max, high_max = 0, 0
+
+    sum_collected = 0
+    low_collected = 1
+
+    for i in range(len(array)):
+        sum_collected += array[i]
+        if sum_collected > max_sum:
+            low_max = low_collected
+            high_max = i
+            max_sum = sum_collected
+        if sum_collected < 0:
+            sum_collected = 0
+            low_collected = i + 1
+
+    return low_max, high_max, max_sum
