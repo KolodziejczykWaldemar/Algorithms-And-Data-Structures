@@ -1,9 +1,18 @@
 import math
 import array as arr
 from copy import deepcopy
+from typing import Any, Union
+
+
+class HeapUnderflowError(Exception):
+    pass
+
+class NewKeyIsSmallerThanCurrentKeyError(Exception):
+    pass
 
 
 class Heap:
+    """Binary max heap implementation"""
     def __init__(self, array: arr.array, inplace: bool = True) -> None:
         if inplace:
             self._array = array
@@ -61,6 +70,49 @@ class Heap:
     def build_max_heap(self) -> None:
         for i in reversed(range(math.floor(len(self._array) / 2))):
             self.max_heapify(i)
+
+    def heap_maximum(self) -> Union[float, int]:
+        return self._array[0]
+
+    def extract_max(self) -> Union[float, int]:
+        if self.heap_size < 1:
+            raise HeapUnderflowError
+
+        max_key = self.heap_maximum()
+
+        self._array[0] = self.array[self.heap_size]
+        self.heap_size -= 1
+
+        self.max_heapify(0)
+        return max_key
+
+    def increase_key(self, i: int, key: Union[float, int]) -> None:
+        if key < self._array[i]:
+            raise NewKeyIsSmallerThanCurrentKeyError
+
+        self._array[i] = key
+
+        while i > 0 and self.array[self.parent_idx(i)] < self._array[i]:
+            self.exchange_values(idx1=i, idx2=self.parent_idx(i))
+            i = self.parent_idx(i)
+
+    def insert(self, key: Union[float, int]) -> None:
+        self.heap_size += 1
+
+        self._array[self.heap_size] = - math.inf
+        self.increase_key(i=self.heap_size, key=key)
+
+    def delete(self, i: int) -> None:
+        if self.heap_size < 1:
+            raise HeapUnderflowError
+
+        if self._array[i] > self._array[self.heap_size]:
+            self._array[i] = self._array[self.heap_size]
+            self.max_heapify(i=i)
+        else:
+            self.increase_key(i=i, key=self.heap_size)
+
+        self.heap_size -= 1
 
 
 def heapsort(array: arr.array) -> arr.array:
